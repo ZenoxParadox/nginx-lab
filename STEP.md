@@ -1,36 +1,26 @@
-# Step 5 – When the backend goes away
+# Step 6 – Who is really asking?
 
 ## Run
 
 ```bash
 docker compose up -d
-docker compose logs -f nginx       # second terminal
-docker compose stop backend
-curl -i localhost:8080/api/test
-curl -i localhost:8080/api/test    # and again
-docker compose start backend
-curl -i localhost:8080/api/test    # right during the restart
+curl localhost:8080/api/test
+curl -H "X-Forwarded-For: 1.2.3.4" localhost:8080/api/test
 ```
 
 ## Predict
 
-Same dead backend, several requests. Do you get the same error each time?
+We send a made-up X-Forwarded-For. What does the backend receive?
 
 Write your answer down before you open the reveal.
 
 <details>
 <summary><b>Reveal</b></summary>
 
-No. Three different errors for one dead backend:
-
-| Error | What happened | Status |
-| --- | --- | --- |
-| 110 Connection timed out | Nobody at that address, silence | 504 (after 60 s) |
-| 113 No route to host | The network says nobody's there | 502, fast |
-| 111 Connection refused | Machine back, app not listening yet | 502, instant |
-
-A dead backend can look like a slow one.
+`X-Forwarded-For: 1.2.3.4, 192.168.65.1`: the fake value stays at the front, and it can be any text.
+Only entries added by your own proxies are trustworthy: read from the right. `X-Real-IP` comes
+from the connection and is safe. Note `$host` drops the port; `$http_host` keeps it.
 
 </details>
 
-Previous: `git checkout step-04` · Next: `git checkout step-06` · What changed: `git diff step-04 step-05`
+Previous: `git checkout step-05` · Next: `git checkout step-07` · What changed: `git diff step-05 step-06`
