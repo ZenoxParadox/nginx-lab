@@ -6,12 +6,18 @@ services:
     ports:
       - "8080:80"
       - "8443:443"
+      - "6380:6380"
     volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
       - ./site:/usr/share/nginx/html:ro
       - ./conf.d:/etc/nginx/conf.d:ro
       - ./certs:/etc/nginx/certs:ro
     depends_on:
       - backend
+      - redis
 
   backend:
     image: traefik/whoami
+
+  redis:
+    image: redis:7
