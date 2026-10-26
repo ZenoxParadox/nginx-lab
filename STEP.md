@@ -1,27 +1,26 @@
-# Step 17 – HTTPS
+# Step 18 – Everyone to HTTPS
 
 ## Run
 
 ```bash
-./scripts/make-certs.sh
+./scripts/make-certs.sh          # if certs/ doesn't exist yet
 docker compose up -d
-curl -si https://localhost:8443/hello; echo "exit: $?"
-curl -ki https://localhost:8443/hello
-curl -i --cacert certs/lab.crt https://localhost:8443/hello
+curl -i localhost:8080/hello
+curl -iL --cacert certs/lab.crt localhost:8080/hello
 ```
 
 ## Predict
 
-What does the first curl print?
+The redirect and the final page: same protocol version?
 
 Write your answer down before you open the reveal.
 
 <details>
 <summary><b>Reveal</b></summary>
 
-Nothing: `-s` hides errors too, and the exit code is 60 (untrusted certificate). `-k` skips the
-check entirely; `--cacert` trusts exactly this certificate. Over HTTP/2, header names are lowercase.
+No: the redirect is HTTP/1.1, the page HTTP/2 (only over HTTPS). The status line says
+"302 Moved Temporarily", the body "302 Found": same code, renamed in 1999.
 
 </details>
 
-Previous: `git checkout step-16` · Next: `git checkout step-18` · What changed: `git diff step-16 step-17`
+Previous: `git checkout step-17` · Next: `git checkout step-19` · What changed: `git diff step-17 step-18`
