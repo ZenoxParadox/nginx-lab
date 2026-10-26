@@ -1,30 +1,36 @@
-# Step 4 – Something behind NGINX
+# Step 5 – When the backend goes away
 
 ## Run
 
 ```bash
-docker compose up
-curl localhost:8080/api/test
+docker compose up -d
+docker compose logs -f nginx       # second terminal
+docker compose stop backend
+curl -i localhost:8080/api/test
+curl -i localhost:8080/api/test    # and again
+docker compose start backend
+curl -i localhost:8080/api/test    # right during the restart
 ```
 
 ## Predict
 
-Remove `depends_on` and start only NGINX with `docker compose up nginx`. What happens?
+Same dead backend, several requests. Do you get the same error each time?
 
 Write your answer down before you open the reveal.
 
 <details>
 <summary><b>Reveal</b></summary>
 
-It refuses to start: `host not found in upstream "backend"`. NGINX looks up names at startup
-and on every reload; one failed lookup takes the whole server down, even the static page.
+No. Three different errors for one dead backend:
 
-From now on everything runs through Compose, so paste this once into your terminal:
+| Error | What happened | Status |
+| --- | --- | --- |
+| 110 Connection timed out | Nobody at that address, silence | 504 (after 60 s) |
+| 113 No route to host | The network says nobody's there | 502, fast |
+| 111 Connection refused | Machine back, app not listening yet | 502, instant |
 
-```bash
-alias nginx-safe-reload='docker compose exec nginx nginx -t && docker compose exec nginx nginx -s reload'
-```
+A dead backend can look like a slow one.
 
 </details>
 
-Previous: `git checkout step-03` · Next: `git checkout step-05` · What changed: `git diff step-03 step-04`
+Previous: `git checkout step-04` · Next: `git checkout step-06` · What changed: `git diff step-04 step-05`
