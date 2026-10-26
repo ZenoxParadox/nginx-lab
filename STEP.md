@@ -1,29 +1,27 @@
-# Step 10 – One slash
+# Step 11 – Who gets the strangers?
 
 ## Run
 
 ```bash
 docker compose up -d
-curl -si localhost:8080/api/test     # look at whoami's GET line
+curl -si localhost:8080/
+curl -si -H "Host: shop.local" localhost:8080/
+curl -si -H "Host: totally-random.example" localhost:8080/
 ```
 
 ## Predict
 
-Try the `proxy_pass` variants from the comments. What path does the backend receive for each?
+Nobody configured `totally-random.example`. What does it get? Then: remove `default_server`, rename `shop.conf` to `a-shop.conf`, reload and repeat.
 
 Write your answer down before you open the reveal.
 
 <details>
 <summary><b>Reveal</b></summary>
 
-| location | proxy_pass | backend receives |
-| --- | --- | --- |
-| `/api/` | `http://backend` | `/api/users/42` |
-| `/api/` | `http://backend/` | `/users/42` |
-| `/api` | `http://backend/` | `//test`, then a redirect and a 404 |
-
-Anything after the host replaces the matched prefix.
+It gets your site: no match means the default server, the first block read unless one says
+`default_server`. Files load alphabetically, so the rename moves every stranger (and `localhost`)
+to the shop. Fix: an explicit catch-all with `server_name _;` and `return 444;`.
 
 </details>
 
-Previous: `git checkout step-09` · Next: `git checkout step-11` · What changed: `git diff step-09 step-10`
+Previous: `git checkout step-10` · Next: `git checkout step-12` · What changed: `git diff step-10 step-11`
