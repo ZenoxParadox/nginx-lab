@@ -1,27 +1,25 @@
-# Step 8 – Compression is off, and half-on
+# Step 9 – A header for the whole server
 
 ## Run
 
 ```bash
 docker compose up -d
-curl -s -o /dev/null -D - -H 'Accept-Encoding: gzip' localhost:8080/api/test
-curl -s -H 'Accept-Encoding: gzip' localhost:8080/api/test | xxd
-curl -s localhost:8080/api/test | wc -c
-curl -s -H 'Accept-Encoding: gzip' localhost:8080/api/test | wc -c
+curl -s -o /dev/null -D - localhost:8080/
+curl -s -o /dev/null -D - localhost:8080/api/test
 ```
 
 ## Predict
 
-`gzip on` is set. Is everything compressed now?
+`X-Lab` is set for the whole server. Which responses carry it?
 
 Write your answer down before you open the reveal.
 
 <details>
 <summary><b>Reveal</b></summary>
 
-Only because this config also lists `gzip_types`: `gzip on` alone only compresses HTML.
-Every gzip stream starts with the bytes `1f 8b`; find them in the `xxd` output.
+Only `/`. A location with its own `add_header` (here `X-Worker`) inherits none from above.
+Same rule for `proxy_set_header`. Fix: put shared headers in a snippet and include it everywhere.
 
 </details>
 
-Previous: `git checkout step-07` · Next: `git checkout step-09` · What changed: `git diff step-07 step-08`
+Previous: `git checkout step-08` · Next: `git checkout step-10` · What changed: `git diff step-08 step-09`
