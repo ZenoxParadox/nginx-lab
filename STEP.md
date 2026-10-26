@@ -1,26 +1,26 @@
-# Step 14 – One missing slash in alias
+# Step 15 – Two users, one cache
 
 ## Run
 
 ```bash
-# Discussion step: nothing to run. Compare these two:
-location /files  { alias /usr/share/nginx/html/; }
-location /files/ { alias /usr/share/nginx/html/; }
+docker compose up -d
+curl -si -H "X-User: alice" localhost:8080/cached/profile
+curl -si -H "X-User: bob"   localhost:8080/cached/profile
 ```
 
 ## Predict
 
-Both serve every normal file correctly. Is one of them dangerous?
+Bob asks for his profile right after Alice. What does he get?
 
 Write your answer down before you open the reveal.
 
 <details>
 <summary><b>Reveal</b></summary>
 
-The first. With mismatched slashes, crafted paths can reach files outside the folder
-(path traversal). Prefer `root`; with `alias`, make the endings match. This config only
-contains the matching form. Not reproduced in the lab.
+A HIT with Alice's request in the body: the cache key is the URL only. Uncomment the fix in
+`/cached/`, reload, and repeat: `BYPASS`. `proxy_cache_bypass` = don't read, `proxy_no_cache` =
+don't write; you need both.
 
 </details>
 
-Previous: `git checkout step-13` · Next: `git checkout step-15` · What changed: `git diff step-13 step-14`
+Previous: `git checkout step-14` · Next: `git checkout step-16` · What changed: `git diff step-14 step-15`
