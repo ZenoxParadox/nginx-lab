@@ -1,26 +1,28 @@
-# Step 18 – Everyone to HTTPS
+# Step 19 – When one backend dies
 
 ## Run
 
 ```bash
-./scripts/make-certs.sh          # if certs/ doesn't exist yet
-docker compose up -d
-curl -i localhost:8080/hello
-curl -iL --cacert certs/lab.crt localhost:8080/hello
+docker compose up -d --scale backend=3
+nginx-safe-reload
+./scripts/failover-loop.sh
+docker stop nginx-lab-backend-2
+./scripts/failover-loop.sh
 ```
 
 ## Predict
 
-The redirect and the final page: same protocol version?
+One backend is dead. How many errors do the nine requests get?
 
 Write your answer down before you open the reveal.
 
 <details>
 <summary><b>Reveal</b></summary>
 
-No: the redirect is HTTP/1.1, the page HTTP/2 (only over HTTPS). The status line says
-"302 Moved Temporarily", the body "302 Found": same code, renamed in 1999.
+None. One request waits the 2-second connect timeout (default 60 s) and is retried on the next
+backend; `X-Upstream` shows both addresses. The dead one is benched for 10 seconds.
+Follow-up: uncomment `proxy_read_timeout 1s` and compare a slow GET and POST with `?wait=3s`.
 
 </details>
 
-Previous: `git checkout step-17` · Next: `git checkout step-19` · What changed: `git diff step-17 step-18`
+Previous: `git checkout step-18` · Next: `git checkout step-20` · What changed: `git diff step-18 step-19`
