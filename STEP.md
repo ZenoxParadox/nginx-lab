@@ -1,25 +1,29 @@
-# Step 9 – A header for the whole server
+# Step 10 – One slash
 
 ## Run
 
 ```bash
 docker compose up -d
-curl -s -o /dev/null -D - localhost:8080/
-curl -s -o /dev/null -D - localhost:8080/api/test
+curl -si localhost:8080/api/test     # look at whoami's GET line
 ```
 
 ## Predict
 
-`X-Lab` is set for the whole server. Which responses carry it?
+Try the `proxy_pass` variants from the comments. What path does the backend receive for each?
 
 Write your answer down before you open the reveal.
 
 <details>
 <summary><b>Reveal</b></summary>
 
-Only `/`. A location with its own `add_header` (here `X-Worker`) inherits none from above.
-Same rule for `proxy_set_header`. Fix: put shared headers in a snippet and include it everywhere.
+| location | proxy_pass | backend receives |
+| --- | --- | --- |
+| `/api/` | `http://backend` | `/api/users/42` |
+| `/api/` | `http://backend/` | `/users/42` |
+| `/api` | `http://backend/` | `//test`, then a redirect and a 404 |
+
+Anything after the host replaces the matched prefix.
 
 </details>
 
-Previous: `git checkout step-08` · Next: `git checkout step-10` · What changed: `git diff step-08 step-09`
+Previous: `git checkout step-09` · Next: `git checkout step-11` · What changed: `git diff step-09 step-10`
