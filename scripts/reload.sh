@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
-# Test the config first; only reload if it's valid.
-docker exec nginx-lab nginx -t && docker exec nginx-lab nginx -s reload
+# Same as the nginx-safe-reload alias: test first, reload only if valid.
+docker compose exec nginx nginx -t && docker compose exec nginx nginx -s reload

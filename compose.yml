@@ -1,0 +1,13 @@
+services:
+  nginx:
+    image: nginx:stable
+    ports:
+      - "8080:80"
+    volumes:
+      - ./site:/usr/share/nginx/html:ro
+      - ./conf.d:/etc/nginx/conf.d:ro
+    depends_on:
+      - backend
+
+  backend:
+    image: traefik/whoami
