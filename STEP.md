@@ -1,28 +1,27 @@
-# Step 20 – Killing every backend
+# Step 21 – Fixing a cached mistake
 
 ## Run
 
 ```bash
 docker compose up -d
-curl -si --cacert certs/lab.crt https://localhost:8443/cached/party        # MISS: fill the cache
-docker compose stop backend
-sleep 10                             # let the copy expire
-curl -si --cacert certs/lab.crt https://localhost:8443/cached/party
-curl -si --cacert certs/lab.crt https://localhost:8443/api/test
+curl -si --cacert certs/lab.crt https://localhost:8443/cached/calendar                                  # MISS, then HIT
+curl -si -H "X-Refresh: 1" --cacert certs/lab.crt https://localhost:8443/cached/calendar               # wrong value
+curl -si -H "X-Refresh: my-secret-token" --cacert certs/lab.crt https://localhost:8443/cached/calendar
+curl -si --cacert certs/lab.crt https://localhost:8443/cached/calendar
 ```
 
 ## Predict
 
-Every backend is dead and the copy has expired. What does the page do?
+The refresh request skips the cache. Does the next normal visitor see the new version?
 
 Write your answer down before you open the reveal.
 
 <details>
 <summary><b>Reveal</b></summary>
 
-It still loads: `200` with `x-cache-status: STALE`, while `/api/test` gives a 504.
-Restore with `docker compose up -d --scale backend=3 && nginx-safe-reload`.
+Yes: the refresh skips reading but still writes. The token is in the config for the lab only;
+better: an untracked include, an environment template, or no secret at all (internal port or IP).
 
 </details>
 
-Previous: `git checkout step-19` · Next: `git checkout step-21` · What changed: `git diff step-19 step-20`
+Previous: `git checkout step-20` · Next: `git checkout step-22` · What changed: `git diff step-20 step-21`
