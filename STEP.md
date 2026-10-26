@@ -1,28 +1,28 @@
-# Step 19 – When one backend dies
+# Step 20 – Killing every backend
 
 ## Run
 
 ```bash
-docker compose up -d --scale backend=3
-nginx-safe-reload
-./scripts/failover-loop.sh
-docker stop nginx-lab-backend-2
-./scripts/failover-loop.sh
+docker compose up -d
+curl -si --cacert certs/lab.crt https://localhost:8443/cached/party        # MISS: fill the cache
+docker compose stop backend
+sleep 10                             # let the copy expire
+curl -si --cacert certs/lab.crt https://localhost:8443/cached/party
+curl -si --cacert certs/lab.crt https://localhost:8443/api/test
 ```
 
 ## Predict
 
-One backend is dead. How many errors do the nine requests get?
+Every backend is dead and the copy has expired. What does the page do?
 
 Write your answer down before you open the reveal.
 
 <details>
 <summary><b>Reveal</b></summary>
 
-None. One request waits the 2-second connect timeout (default 60 s) and is retried on the next
-backend; `X-Upstream` shows both addresses. The dead one is benched for 10 seconds.
-Follow-up: uncomment `proxy_read_timeout 1s` and compare a slow GET and POST with `?wait=3s`.
+It still loads: `200` with `x-cache-status: STALE`, while `/api/test` gives a 504.
+Restore with `docker compose up -d --scale backend=3 && nginx-safe-reload`.
 
 </details>
 
-Previous: `git checkout step-18` · Next: `git checkout step-20` · What changed: `git diff step-18 step-19`
+Previous: `git checkout step-19` · Next: `git checkout step-21` · What changed: `git diff step-19 step-20`
