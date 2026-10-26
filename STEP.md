@@ -1,26 +1,26 @@
-# Step 13 – Slow down, or go away?
+# Step 14 – One missing slash in alias
 
 ## Run
 
 ```bash
-docker compose up -d
-./scripts/ratelimit-seq.sh       # one after another
-./scripts/ratelimit-par.sh       # all at once
+# Discussion step: nothing to run. Compare these two:
+location /files  { alias /usr/share/nginx/html/; }
+location /files/ { alias /usr/share/nginx/html/; }
 ```
 
 ## Predict
 
-One request per second, `burst=5`. How many of ten simultaneous requests pass?
+Both serve every normal file correctly. Is one of them dangerous?
 
 Write your answer down before you open the reveal.
 
 <details>
 <summary><b>Reveal</b></summary>
 
-1 immediately, 5 after 1 to 5 seconds, 4 rejected: `burst` is a waiting line, not an allowance.
-Sequential requests never overflow it. With `burst=5 nodelay`: 6 immediately, 4 rejected.
-The default rejection is 503; this config sets 429.
+The first. With mismatched slashes, crafted paths can reach files outside the folder
+(path traversal). Prefer `root`; with `alias`, make the endings match. This config only
+contains the matching form. Not reproduced in the lab.
 
 </details>
 
-Previous: `git checkout step-12` · Next: `git checkout step-14` · What changed: `git diff step-12 step-13`
+Previous: `git checkout step-13` · Next: `git checkout step-15` · What changed: `git diff step-13 step-14`
