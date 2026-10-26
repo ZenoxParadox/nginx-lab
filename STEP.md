@@ -1,26 +1,27 @@
-# Step 24 – Uploading a big file
+# Step 25 – Who was slow?
 
 ## Run
 
 ```bash
-# first comment out client_max_body_size in conf.d/default.conf, then:
 docker compose up -d
 ./scripts/make-bigfile.sh
-curl -s -o /dev/null --cacert certs/lab.crt -X POST --data-binary @big.bin -w "%{http_code}\n" https://localhost:8443/api/test
+docker compose logs -f nginx                      # second terminal
+curl -s -o /dev/null --cacert certs/lab.crt "https://localhost:8443/api/test?wait=500ms"
+curl -s -o /dev/null --limit-rate 200k --cacert certs/lab.crt https://localhost:8443/big.bin
 ```
 
 ## Predict
 
-Nothing about uploads is configured. What happens to a 2 MB upload?
+The 2 MB download takes curl about 10 seconds. What does NGINX log as total time?
 
 Write your answer down before you open the reveal.
 
 <details>
 <summary><b>Reveal</b></summary>
 
-413: the default limit is 1 MB, enforced before the backend sees anything. Raise it per
-location (this step's config uses 10m). Spring's multipart limit is 1 MB too.
+Close to 0: Docker Desktop's port forwarding took the whole file instantly and trickled it to
+curl itself. NGINX measures what's in front of it, not what users experience.
 
 </details>
 
-Previous: `git checkout step-23` · Next: `git checkout step-25` · What changed: `git diff step-23 step-24`
+Previous: `git checkout step-24` · Next: `git checkout step-26` · What changed: `git diff step-24 step-25`
