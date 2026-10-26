@@ -1,27 +1,27 @@
-# Step 7 – More than one backend
+# Step 8 – Compression is off, and half-on
 
 ## Run
 
 ```bash
-docker compose up -d --scale backend=3
-nginx-safe-reload                 # names are looked up at reload!
-docker compose exec nginx nproc   # how many workers?
-./scripts/lb-loop.sh
+docker compose up -d
+curl -s -o /dev/null -D - -H 'Accept-Encoding: gzip' localhost:8080/api/test
+curl -s -H 'Accept-Encoding: gzip' localhost:8080/api/test | xxd
+curl -s localhost:8080/api/test | wc -c
+curl -s -H 'Accept-Encoding: gzip' localhost:8080/api/test | wc -c
 ```
 
 ## Predict
 
-Right after the reload: will the requests spread nicely over three backends?
+`gzip on` is set. Is everything compressed now?
 
 Write your answer down before you open the reveal.
 
 <details>
 <summary><b>Reveal</b></summary>
 
-Often not: each worker keeps its own turn counter, and every fresh worker starts at the same
-backend. Round-robin is only even on average. In the browser it rotates nicely, because one
-kept-alive connection stays with one worker. A shared `zone` fixes it (step 19).
+Only because this config also lists `gzip_types`: `gzip on` alone only compresses HTML.
+Every gzip stream starts with the bytes `1f 8b`; find them in the `xxd` output.
 
 </details>
 
-Previous: `git checkout step-06` · Next: `git checkout step-08` · What changed: `git diff step-06 step-07`
+Previous: `git checkout step-07` · Next: `git checkout step-09` · What changed: `git diff step-07 step-08`
