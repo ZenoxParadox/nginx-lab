@@ -5,9 +5,11 @@ services:
       - SYS_PTRACE
     ports:
       - "8080:80"
+      - "8443:443"
     volumes:
       - ./site:/usr/share/nginx/html:ro
       - ./conf.d:/etc/nginx/conf.d:ro
+      - ./certs:/etc/nginx/certs:ro
     depends_on:
       - backend
 
