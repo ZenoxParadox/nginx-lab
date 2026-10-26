@@ -1,27 +1,37 @@
-# Step 21 – Fixing a cached mistake
+# Step 22 – The bouncer (API gateway)
 
 ## Run
 
 ```bash
 docker compose up -d
-curl -si --cacert certs/lab.crt https://localhost:8443/cached/calendar                                  # MISS, then HIT
-curl -si -H "X-Refresh: 1" --cacert certs/lab.crt https://localhost:8443/cached/calendar               # wrong value
-curl -si -H "X-Refresh: my-secret-token" --cacert certs/lab.crt https://localhost:8443/cached/calendar
-curl -si --cacert certs/lab.crt https://localhost:8443/cached/calendar
+curl -si --cacert certs/lab.crt https://localhost:8443/secure/data
+curl -si -H "Authorization: Bearer wrong" --cacert certs/lab.crt https://localhost:8443/secure/data
+curl -si -H "Authorization: Bearer token-alice" --cacert certs/lab.crt https://localhost:8443/secure/data
+curl -si --cacert certs/lab.crt https://localhost:8443/_auth
 ```
 
 ## Predict
 
-The refresh request skips the cache. Does the next normal visitor see the new version?
+No token, a wrong token, Alice's token, and `/_auth` itself: which status codes?
 
 Write your answer down before you open the reveal.
 
 <details>
 <summary><b>Reveal</b></summary>
 
-Yes: the refresh skips reading but still writes. The token is in the config for the lab only;
-better: an untracked include, an environment template, or no secret at all (internal port or IP).
+401, 401, 200 and 404 (`internal` locations don't exist for visitors). In production, a real
+auth service answers:
+
+```nginx
+location = /_auth {
+    internal;
+    proxy_pass http://auth-service/verify;
+    proxy_pass_request_body off;
+    proxy_set_header Content-Length "";
+    proxy_set_header X-Original-URI $request_uri;
+}
+```
 
 </details>
 
-Previous: `git checkout step-20` · Next: `git checkout step-22` · What changed: `git diff step-20 step-21`
+Previous: `git checkout step-21` · Next: `git checkout step-23` · What changed: `git diff step-21 step-22`
